@@ -1,0 +1,12 @@
+#nav-tab {
+    margin-top:15px
+}
+
+#story-content-display{
+    height:400px
+}
+
+#nav-home, #nav-profile, #nav-contact {
+    height:800px;
+    margin-top:10px
+}
