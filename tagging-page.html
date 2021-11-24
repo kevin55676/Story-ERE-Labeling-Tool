@@ -12,12 +12,35 @@
   <div class="container px-4">
     <div class="row gx-5">
       <div class="col">
+        <!--
         <img src="./109-1092544_view-pogger-pogchamp-emote-png-transparent-png.png" class="img-thumbnail">
-        <h3> 先去買消夜 </h3>
+        -->
+        <div class="form-check" style="margin-top:15px">
+          <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
+          <label class="form-check-label" for="exampleRadios1">
+            顯示全部
+          </label>
+        </div>
+        <div class="form-check">
+          <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+          <label class="form-check-label" for="exampleRadios2">
+            分句顯示
+          </label>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            這邊會顯示檔名
+          </div>
+          <div class="card-body" style="height:400px">
+            <p class="card-text"> 這邊會顯示故事內容 </p>
+          </div>
+        </div>
+
       </div>
       <div class="col">
         <nav>
-          <div class="nav nav-tabs" id="nav-tab" role="tablist">
+          <div class="nav nav-tabs" id="nav-tab" role="tablist" style="margin-top:15px">
             <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
               type="button" role="tab" aria-controls="nav-home" aria-selected="true">Entity</button>
             <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
@@ -28,15 +51,24 @@
         </nav>
 
         <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">This is an
-            Event
-            page</div>
-          <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">This is a
-            Relation
-            page</div>
-          <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">This is a Event
-            page
+          <div class="tab-pane fade show active border border-2 rounded" id="nav-home" role="tabpanel"
+            aria-labelledby="nav-home-tab" style="height:800px;margin-top:10px;">
+            這邊會顯示Entity的標記狀況
           </div>
+
+          <div class="tab-pane fade border border-2 rounded" id="nav-profile" role="tabpanel"
+            aria-labelledby="nav-profile-tab" style="height:800px;margin-top:10px;">
+            這邊會顯示Relation的標記狀況
+          </div>
+          <div class="tab-pane fade border border-2 rounded" id="nav-contact" role="tabpanel"
+            aria-labelledby="nav-contact-tab" style="height:800px;margin-top:10px;">
+            這邊會顯示Event的標記狀況
+          </div>
+        </div>
+
+        <div class="d-grid gap-2 d-md-flex justify-content-md-end" style="margin-top:15px">
+          <button type="button" class="btn btn-primary">New</button>
+          <button type="button" class="btn btn-success">Commit</button>
         </div>
       </div>
     </div>
