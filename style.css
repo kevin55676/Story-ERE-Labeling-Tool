@@ -1,12 +1,16 @@
 #nav-tab {
-    margin-top:15px
+    margin-top:15px;
 }
 
-#story-content-display{
-    height:400px
+#file_selector {
+    margin-top:15px;
+}
+
+#card_content{
+    height:400px;
 }
 
 #nav-home, #nav-profile, #nav-contact {
-    height:800px;
-    margin-top:10px
+    height:550px;
+    margin-top:10px;
 }

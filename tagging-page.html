@@ -17,7 +17,7 @@
         <img src="./109-1092544_view-pogger-pogchamp-emote-png-transparent-png.png" class="img-thumbnail">
         -->
         <select class="form-select" aria-label="Default select example" id="file_selector">
-          <option selected>選擇檔案</option>
+          <option value="-1" selected disabled>選擇檔案</option>
         </select>
         <div class="form-check" style="margin-top:15px">
           <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
@@ -34,12 +34,11 @@
         </div>
 
         <div class="card" style="margin-top:15px">
-          <div class="card-header">
+          <div class="card-header" id="card_title">
             這邊會顯示檔名
           </div>
           <div class="card-body">
-
-            <p class="card-text" id="story-content-display"> 這邊會顯示故事內容 </p>
+            <p class="card-text" id="card_content"> 這邊會顯示故事內容 </p>
           </div>
         </div>
 
