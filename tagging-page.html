@@ -16,6 +16,9 @@
         <!--
         <img src="./109-1092544_view-pogger-pogchamp-emote-png-transparent-png.png" class="img-thumbnail">
         -->
+        <select class="form-select" aria-label="Default select example" id="file_selector">
+          <option selected>選擇檔案</option>
+        </select>
         <div class="form-check" style="margin-top:15px">
           <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios1" value="option1" checked>
           <label class="form-check-label" for="exampleRadios1">
@@ -23,7 +26,8 @@
           </label>
         </div>
         <div class="form-check">
-          <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2">
+          <input class="form-check-input" type="radio" name="exampleRadios" id="exampleRadios2" value="option2"
+            disabled>
           <label class="form-check-label" for="exampleRadios2">
             分句顯示
           </label>
@@ -80,6 +84,7 @@
     integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
     crossorigin="anonymous"></script>
   <script src="script.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
 </body>
 
