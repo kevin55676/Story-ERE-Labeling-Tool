@@ -10,12 +10,9 @@
 </head>
 
 <body>
-  <div class="container px-4">
-    <div class="row gx-5">
-      <div class="col">
-        <!--
-        <img src="./109-1092544_view-pogger-pogchamp-emote-png-transparent-png.png" class="img-thumbnail">
-        -->
+  <div class="container">
+    <div class="row gx-2">
+      <div class="col-4">
         <select class="form-select" aria-label="Default select example" id="file_selector">
           <option value="-1" selected disabled>選擇檔案</option>
         </select>
@@ -32,36 +29,34 @@
             分句顯示
           </label>
         </div>
-
-
         <div class="card" style="margin-top:15px">
           <div class="card-header" id="card_title">
             這邊會顯示檔名
           </div>
-          <div class="card-body">
+          <div class="card-body overflow-auto">
             <p class="card-text" id="card_content"> 這邊會顯示故事內容 </p>
           </div>
         </div>
-
       </div>
-      <div class="col">
+      <div class="col-4">
         <nav>
           <div class="nav nav-tabs" id="nav-tab" role="tablist">
             <button class="nav-link active" id="nav-home-tab" data-bs-toggle="tab" data-bs-target="#nav-home"
-              type="button" role="tab" aria-controls="nav-home" aria-selected="true">Entity</button>
+              type="button" role="tab" aria-controls="nav-home" aria-selected="true" data-value="entity"
+              onclick="change_tab(this)">Entity</button>
             <button class="nav-link" id="nav-profile-tab" data-bs-toggle="tab" data-bs-target="#nav-profile"
-              type="button" role="tab" aria-controls="nav-profile" aria-selected="false">Relation</button>
+              type="button" role="tab" aria-controls="nav-profile" aria-selected="false" data-value="relation"
+              onclick="change_tab(this)">Relation</button>
             <button class="nav-link" id="nav-contact-tab" data-bs-toggle="tab" data-bs-target="#nav-contact"
-              type="button" role="tab" aria-controls="nav-contact" aria-selected="false">Event</button>
+              type="button" role="tab" aria-controls="nav-contact" aria-selected="false" data-value="event"
+              onclick="change_tab(this)">Event</button>
           </div>
         </nav>
-
-        <div class="tab-content" id="nav-tabContent">
+        <div class="tab-content overflow-auto" id="nav-tabContent">
           <div class="tab-pane fade show active border border-2 rounded" id="nav-home" role="tabpanel"
             aria-labelledby="nav-home-tab">
             這邊會顯示Entity的標記狀況
           </div>
-
           <div class="tab-pane fade border border-2 rounded" id="nav-profile" role="tabpanel"
             aria-labelledby="nav-profile-tab">
             這邊會顯示Relation的標記狀況
@@ -70,11 +65,36 @@
             aria-labelledby="nav-contact-tab">
             這邊會顯示Event的標記狀況
           </div>
+          <div class="d-grid gap-2 d-md-flex justify-content-md-end" style="margin-top:15px">
+            <button type="button" class="btn btn-success" id="commit_btn">Commit</button>
+          </div>
         </div>
-
-        <div class="d-grid gap-2 d-md-flex justify-content-md-end" style="margin-top:15px">
-          <button type="button" class="btn btn-primary" id="new_btn">New</button>
-          <button type="button" class="btn btn-success" id="commit_btn">Commit</button>
+      </div>
+      <div class="col">
+        <div class="row" id="label_menu_entity" data-value="entity">
+          <button type="button" class="btn btn-success">Per</button>
+          <button type="button" class="btn btn-success">Org</button>
+          <button type="button" class="btn btn-success">Loc</button>
+          <button type="button" class="btn btn-success">Fac</button>
+          <button type="button" class="btn btn-success">Veh</button>
+          <button type="button" class="btn btn-success">Wea</button>
+        </div>
+        <div class="row" id="label_menu_relation" data-value="relation">
+          <button type="button" class="btn btn-success">???</button>
+          <button type="button" class="btn btn-success">???</button>
+          <button type="button" class="btn btn-success">???</button>
+          <button type="button" class="btn btn-success">???</button>
+          <button type="button" class="btn btn-success">???</button>
+          <button type="button" class="btn btn-success">???</button>
+        </div>
+        <div class="row" id="label_menu_event" data-value="event">
+          <button type="button" class="btn btn-success">Life</button>
+          <button type="button" class="btn btn-success">Movement</button>
+          <button type="button" class="btn btn-success">Transaction</button>
+          <button type="button" class="btn btn-success">Business</button>
+          <button type="button" class="btn btn-success">Conflict</button>
+          <button type="button" class="btn btn-success">Personnel</button>
+          <button type="button" class="btn btn-success">Justice</button>
         </div>
       </div>
     </div>

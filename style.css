@@ -14,3 +14,21 @@
     height:550px;
     margin-top:10px;
 }
+
+#label_menu_entity {
+    display: block;
+}
+
+#label_menu_relation {
+    display: none;
+}
+
+#label_menu_event {
+    display: none;
+}
+
+#label_menu_entity, #label_menu_relation, #label_menu_event {
+    max-width: 110px;
+    margin-left: 10px;
+    margin-top: 15px;
+}
