@@ -16,7 +16,7 @@
 }
 
 #label_menu_entity {
-    display: block;
+    display: none;
 }
 
 #label_menu_relation {
@@ -30,5 +30,9 @@
 #label_menu_entity, #label_menu_relation, #label_menu_event {
     max-width: 110px;
     margin-left: 10px;
+    margin-top: 15px;
+}
+
+#select_1, #select_2, #select_3 {
     margin-top: 15px;
 }
