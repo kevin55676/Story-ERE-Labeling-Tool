@@ -33,8 +33,8 @@
           <div class="card-header" id="card_title">
             這邊會顯示檔名
           </div>
-          <div class="card-body overflow-auto">
-            <p class="card-text" id="card_content"> 這邊會顯示故事內容 </p>
+          <div class="card-body overflow-auto" id="card_content">
+            <p>這邊會顯示故事內容</p>
           </div>
         </div>
       </div>
@@ -58,7 +58,7 @@
             這邊會顯示標記狀況
           </div>
           <div class="d-grid gap-2 d-md-flex justify-content-md-end" style="margin-top:15px">
-            <button type="button" class="btn btn-success" id="commit_btn">Commit</button>
+            <button type="button" class="btn btn-success" id="commit_btn" onclick="click_commit()">Commit</button>
           </div>
         </div>
       </div>
@@ -78,8 +78,8 @@
             <select class="form-select" aria-label="Default select example" id="select_3">
             </select>
           </div>
-          <button type="button" class="btn btn-primary">Create Arg</button>
-          <button type="button" class="btn btn-primary">Done</button>
+          <button type="button" class="btn btn-primary" id="create_arg" onclick="click_CreateArg()">Create Arg</button>
+          <button type="button" class="btn btn-primary" id="done">Done</button>
         </form>
       </div>
     </div>

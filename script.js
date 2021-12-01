@@ -3,6 +3,7 @@ var file_selector = document.getElementById('file_selector');
 var select1 = document.getElementById('select_1');
 var select2 = document.getElementById('select_2');
 var select3 = document.getElementById('select_3');
+
 select2.style.display = 'none';
 select3.style.display = 'none';
 
@@ -13,6 +14,12 @@ var current_menu3 = '';
 
 function click_commit() {
     alert('Commit to Server!');
+}
+
+function click_CreateArg() {
+    selectedTexts = window.getSelection();
+    // console.log(selectedTexts);
+    console.log(document.getSelection());
 }
 
 function file_selected() {
@@ -122,16 +129,23 @@ function generate_file_list() {
 
 function display_story(f_title, f_cont) {
     let title = document.getElementById('card_title');
-    let content = document.getElementById('card_content')
+    let content = document.getElementById('card_content');
 
     title.textContent = f_title;
-    content.textContent = f_cont;
-    // var tok_list = tokenization(f_cont);
-    // doc2btn(tok_list);
+    while (content.firstChild) {
+        content.removeChild(content.firstChild);
+    }
+    var tok_list = tokenization(f_cont);
+    for (let i = 0; i < tok_list.length; i++) {
+        let spam = document.createElement('spam');
+        spam.innerHTML = tok_list[i];
+        spam.dataset.value = i;
+        content.appendChild(spam);
+    }
 }
 
 function tokenization(string) {
-    let exp = new RegExp('([\u4e00-\u9fa5])');
+    let exp = new RegExp('([\u4e00-\u9fa5:：!！「」，。?？])');
     let ret_list = [];
     let splited = string.split(exp);
     for (let tok = 0; tok < splited.length; tok++) {
@@ -140,6 +154,7 @@ function tokenization(string) {
         }
     }
 
+    // console.log(ret_list);
     return ret_list;
 }
 
@@ -158,7 +173,7 @@ var ERE_menu1 = {
     "Entity": ["Per", "Org", "Loc", "Fac", "Veh", "Wea"],
     "Relation": [""],
     "Event": ["Life", "Movement", "Transaction", "Business", "Conflict", "Contact", "Personnel", "Justice"]
-}
+};
 
 var menu1_menu2 = {
     "Life": ["Be-Born", "Marry", "Divorce", "Injure", "Die"],
@@ -169,7 +184,7 @@ var menu1_menu2 = {
     "Personnel": ["Start-Position", "End-Position", "Nominate", "Elect"],
     "Justice": ["Arrest-Jail", "Release-Parole", "Trial-Hearing", "Charge-Indict", "Sue", "Convict", "Sentence", "Fine", "Execute", "Extradite", "Acquit", "Pardon", "Appeal"],
     "Contact": ["Meet", "Phone-Write"]
-}
+};
 
 var menu2_menu3 = {
     "Be-Born": ["Person", "Time", "Place"],
@@ -205,4 +220,4 @@ var menu2_menu3 = {
     "Appeal": ["Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
     "Meet": ["Entity", "Time", "Duration", "Place"],
     "Phone-Write": ["Entity", "Time", "Duration", "Place"]
-}
+};
