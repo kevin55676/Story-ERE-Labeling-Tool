@@ -18,9 +18,26 @@ function click_commit() {
 
 function click_CreateArg() {
     selectedTexts = window.getSelection();
-    // console.log(selectedTexts);
     console.log(document.getSelection());
+    let text = window.getSelection().toString();
+    let anchor_node = window.getSelection().anchorNode.parentNode;
+    let focus_node = window.getSelection().focusNode.parentNode;
+    let start = anchor_node.dataset.value;
+    let end = (parseInt(focus_node.dataset.value, 10) + 1).toString();
+
+    let obj = {
+        'Type': current_tab,
+        'Text': text,
+        'Start': start,
+        'End': end
+    }
 }
+
+function create_entity_obj() { }
+
+function create_relation_obj() { }
+
+function create_event_obj() { }
 
 function file_selected() {
     let val = file_selector.value;
