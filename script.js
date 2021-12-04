@@ -3,17 +3,29 @@ var file_selector = document.getElementById('file_selector');
 var select1 = document.getElementById('select_1');
 var select2 = document.getElementById('select_2');
 var select3 = document.getElementById('select_3');
+var args_display = document.getElementById('args_display');
+var tag_display = document.getElementById('nav-home');
 
 select2.style.display = 'none';
 select3.style.display = 'none';
 
 var current_tab = 'Entity';
-var current_menu1 = '';
-var current_menu2 = '';
-var current_menu3 = '';
+
+var args = [];
+var taggings = [];
 
 function click_commit() {
     alert('Commit to Server!');
+}
+
+function click_Done() {
+    if (args.length != 0) {
+        taggings.push([current_tab, args]);
+    }
+    args = [];
+
+    refresh_tag_display();
+    reset_args_display();
 }
 
 function click_CreateArg() {
@@ -25,19 +37,102 @@ function click_CreateArg() {
     let start = anchor_node.dataset.value;
     let end = (parseInt(focus_node.dataset.value, 10) + 1).toString();
 
-    let obj = {
-        'Type': current_tab,
+    if (current_tab == 'Event') {
+        let arg_type = select3.value;
+        let arg = create_event_obj(arg_type, text, start, end);
+        args.push(arg);
+    } else if (current_tab == 'Entity') {
+        let arg_type = select1.value;
+        let arg = create_entity_obj(arg_type, text, start, end);
+        args.push(arg);
+    } else if (current_tab == 'Relation') {
+        create_relation_obj();
+    }
+
+    refresh_args_display();
+}
+
+function create_entity_obj(arg_type, text, start, end) {
+    let arg = {
+        'Arg_type': arg_type,
         'Text': text,
         'Start': start,
         'End': end
     }
-}
 
-function create_entity_obj() { }
+    return arg;
+}
 
 function create_relation_obj() { }
 
-function create_event_obj() { }
+function create_event_obj(arg_type, text, start, end) {
+    let arg = {
+        'Arg_type': arg_type,
+        'Text': text,
+        'Start': start,
+        'End': end
+    }
+
+    return arg;
+}
+
+function reset_args_display() {
+    while (args_display.firstChild) {
+        args_display.removeChild(args_display.firstChild);
+    }
+}
+
+function reset_tag_display() {
+    while (tag_display.firstChild) {
+        tag_display.removeChild(tag_display.firstChild);
+    }
+}
+
+function refresh_args_display() {
+    // reset the args list first
+    reset_args_display();
+
+    // generate args according to args list
+    for (let i = 0; i < args.length; i++) {
+        let wrapper = document.createElement('div');
+        let arg_type = document.createElement('span');
+        arg_type.innerHTML = args[i]['Arg_type'];
+        let text = document.createElement('span');
+        text.innerHTML = args[i]['Text']
+        wrapper.appendChild(arg_type);
+        wrapper.appendChild(text);
+        args_display.appendChild(wrapper);
+    }
+}
+
+function refresh_tag_display() {
+    reset_tag_display();
+
+    for (let i = 0; i < taggings.length; i++) {
+        let tag_wrapper = get_tagWrapper();
+        for (let j = 0; j < taggings[i][1].length; j++) {
+            let arg_wrapper = document.createElement('div');
+            arg_wrapper.style.width = 'fit-content';
+            let arg = document.createElement('span');
+            arg.innerHTML = taggings[i][1][j]['Arg_type'];
+            let text = document.createElement('span');
+            text.innerHTML = taggings[i][1][j]['Text'];
+
+            arg_wrapper.appendChild(arg);
+            arg_wrapper.appendChild(text);
+            tag_wrapper.appendChild(arg_wrapper);
+        }
+        tag_display.appendChild(tag_wrapper);
+    }
+}
+
+function get_tagWrapper() {
+    let tag_wrapper = document.createElement('div');
+    tag_wrapper.style.border = '2px solid black';
+    tag_wrapper.style.width = 'fit-content';
+
+    return tag_wrapper;
+}
 
 function file_selected() {
     let val = file_selector.value;
@@ -111,6 +206,9 @@ function select2_changed() {
 
 function change_tab(btn) {
     tagging_selections_reset();
+    args = [];
+    reset_args_display();
+
     generate_options_1(btn.dataset.value);
 
     current_tab = btn.innerHTML;
@@ -173,15 +271,6 @@ function tokenization(string) {
 
     // console.log(ret_list);
     return ret_list;
-}
-
-function doc2btn(tok_list) {
-    for (let i = 0; i < tok_list.length; i++) {
-        let btn = document.createElement("button");
-        btn.innerHTML = tok_list[i];
-        let content = document.getElementById('card_content');
-        content.appendChild(btn);
-    }
 }
 
 get_story_data();

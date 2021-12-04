@@ -52,8 +52,8 @@
               onclick="change_tab(this)">Event</button>
           </div>
         </nav>
-        <div class="tab-content overflow-auto" id="nav-tabContent">
-          <div class="tab-pane fade show active border border-2 rounded" id="nav-home" role="tabpanel"
+        <div class="tab-content" id="nav-tabContent">
+          <div class="tab-pane fade show active border border-2 rounded overflow-auto" id="nav-home" role="tabpanel"
             aria-labelledby="nav-home-tab">
             這邊會顯示標記狀況
           </div>
@@ -78,8 +78,13 @@
             <select class="form-select" aria-label="Default select example" id="select_3">
             </select>
           </div>
-          <button type="button" class="btn btn-primary" id="create_arg" onclick="click_CreateArg()">Create Arg</button>
-          <button type="button" class="btn btn-primary" id="done">Done</button>
+          <div><button type="button" class="btn btn-primary" id="create_arg" onclick="click_CreateArg()">Create
+              Arg</button>
+            <button type="button" class="btn btn-primary" id="done" onclick="click_Done()">Done</button>
+          </div>
+          <div class="overflow-auto" id="args_display">
+          </div>
+
         </form>
       </div>
     </div>
