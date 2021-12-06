@@ -13,6 +13,7 @@ var current_tab = 'Entity';
 
 var args = [];
 var taggings = [];
+var temp_tag = [];
 
 function click_commit() {
     alert('Commit to Server!');
@@ -28,16 +29,8 @@ function click_Done() {
     reset_args_display();
 }
 
-function del_tag(btn) {
-    let num = btn.dataset.value;
-    taggings.splice(num, 1);
-
-    refresh_tag_display();
-}
-
 function click_CreateArg() {
     selectedTexts = window.getSelection();
-    // console.log(document.getSelection());
     let text = window.getSelection().toString();
     let anchor_node = window.getSelection().anchorNode.parentNode;
     let focus_node = window.getSelection().focusNode.parentNode;
@@ -59,9 +52,38 @@ function click_CreateArg() {
     refresh_args_display();
 }
 
-function over_tag() {
-    //TODO: 高亮選取的tag
-    alert('hi');
+function click_tag(wrapper) {
+    let num = wrapper.dataset.value;
+    // alert(num);
+    args = taggings[num][1];
+    taggings.splice(num, 1);
+
+    refresh_args_display();
+    refresh_tag_display();
+}
+
+function del_tag(btn) {
+    let num = btn.dataset.value;
+    taggings.splice(num, 1);
+
+    refresh_tag_display();
+}
+
+function del_arg(btn) {
+    let num = btn.dataset.value;
+    args.splice(num, 1);
+
+    refresh_args_display();
+}
+
+function over_tag(wrapper) {
+    let style = getComputedStyle(wrapper)
+    wrapper.style.backgroundColor = style.backgroundColor.replace(unselected_opacity, selected_opacity);
+}
+
+function leave_tag(wrapper) {
+    let style = getComputedStyle(wrapper)
+    wrapper.style.backgroundColor = style.backgroundColor.replace(selected_opacity, unselected_opacity);
 }
 
 function create_entity_obj(arg_type, text, start, end) {
@@ -101,6 +123,14 @@ function reset_tag_display() {
     }
 }
 
+function reset_tagging_selections() {
+    while (select1.firstChild) {
+        select1.removeChild(select1.firstChild);
+    }
+    select2.style.display = 'none';
+    select3.style.display = 'none';
+}
+
 function refresh_args_display() {
     // reset the args list first
     reset_args_display();
@@ -108,10 +138,12 @@ function refresh_args_display() {
     // generate args according to args list
     for (let i = 0; i < args.length; i++) {
         let wrapper = document.createElement('div');
+        let del_btn = get_delBtn(i, 'arg');
         let arg_type = document.createElement('span');
         arg_type.innerHTML = args[i]['Arg_type'];
         let text = document.createElement('span');
-        text.innerHTML = args[i]['Text']
+        text.innerHTML = args[i]['Text'];
+        wrapper.appendChild(del_btn);
         wrapper.appendChild(arg_type);
         wrapper.appendChild(text);
         args_display.appendChild(wrapper);
@@ -124,11 +156,10 @@ function refresh_tag_display() {
     for (let i = 0; i < taggings.length; i++) {
         let wrapper = document.createElement('div');
         wrapper.setAttribute('class', 'row');
-        let del_btn = get_delBtn(i);
-        let tag_wrapper = get_tagWrapper(taggings[i][0]);
+        let del_btn = get_delBtn(i, 'tag');
+        let tag_wrapper = get_tagWrapper(i, taggings[i][0]);
         for (let j = 0; j < taggings[i][1].length; j++) {
             let arg_wrapper = document.createElement('div');
-            arg_wrapper.setAttribute('onclick', 'over_tag()');
             arg_wrapper.style.width = 'fit-content';
             let arg = document.createElement('span');
             arg.innerHTML = taggings[i][1][j]['Arg_type'];
@@ -143,11 +174,35 @@ function refresh_tag_display() {
         wrapper.appendChild(tag_wrapper);
         tag_display.appendChild(wrapper);
     }
+
+    refresh_story();
+}
+
+function refresh_story() {
+    let content = document.getElementById('card_content');
+    let children = content.children;
+    for (let c = 0; c < children.length; c++) {
+        for (i = 0; i < taggings.length; i++) {
+            for (j = 0; j < taggings[i][1].length; j++) {
+                if (parseInt(children[c].dataset.value) >= parseInt(taggings[i][1][j]['Start']) &&
+                    parseInt(children[c].dataset.value) <= parseInt(taggings[i][1][j]['End'])) {
+                    // TODO: finish this part
+                    children[c].style.backgroundColor()
+                }
+
+            }
+        }
+    }
+    console.log(children);
 }
 
 
-function get_tagWrapper(tab) {
+function get_tagWrapper(i, tab) {
     let tag_wrapper = document.createElement('div');
+    tag_wrapper.setAttribute('onmouseenter', 'over_tag(this)');
+    tag_wrapper.setAttribute('onmouseleave', 'leave_tag(this)');
+    tag_wrapper.setAttribute('onclick', 'click_tag(this)');
+    tag_wrapper.setAttribute('data-value', i);
     tag_wrapper.style.border = '2px solid black';
     tag_wrapper.style.width = 'fit-content';
     tag_wrapper.style.backgroundColor = 'rgba(' + rgb_dict[tab]["R"] + ',' + rgb_dict[tab]["G"] + ',' +
@@ -156,13 +211,18 @@ function get_tagWrapper(tab) {
     return tag_wrapper;
 }
 
-function get_delBtn(i) {
+
+function get_delBtn(i, type) {
     let del_btn = document.createElement('button');
     del_btn.setAttribute('type', 'button');
     del_btn.setAttribute('class', 'btn-close');
     del_btn.setAttribute('aria-label', 'Close');
-    del_btn.setAttribute('onclick', 'del_tag(this)');
     del_btn.setAttribute('data-value', i);
+    if (type == 'tag') {
+        del_btn.setAttribute('onclick', 'del_tag(this)');
+    } else if (type == 'arg') {
+        del_btn.setAttribute('onclick', 'del_arg(this)');
+    }
 
     return del_btn;
 }
@@ -176,14 +236,6 @@ function remove_all_options() {
     while (select1.firstChild) {
         select1.removeChild(select1.firstChild);
     }
-}
-
-function tagging_selections_reset() {
-    while (select1.firstChild) {
-        select1.removeChild(select1.firstChild);
-    }
-    select2.style.display = 'none';
-    select3.style.display = 'none';
 }
 
 function generate_options_1(tab) {
@@ -238,7 +290,7 @@ function select2_changed() {
 }
 
 function change_tab(btn) {
-    tagging_selections_reset();
+    reset_tagging_selections();
     args = [];
     reset_args_display();
 
@@ -246,10 +298,6 @@ function change_tab(btn) {
 
     current_tab = btn.innerHTML;
 }
-
-file_selector.addEventListener('change', file_selected);
-select1.addEventListener('change', select1_changed);
-select2.addEventListener('change', select2_changed);
 
 var stories_json;
 
@@ -301,7 +349,6 @@ function tokenization(string) {
         }
     }
 
-    // console.log(ret_list);
     return ret_list;
 }
 

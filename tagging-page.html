@@ -13,7 +13,7 @@
   <div class="container">
     <div class="row gx-2">
       <div class="col-4">
-        <select class="form-select" aria-label="Default select example" id="file_selector">
+        <select class="form-select" aria-label="Default select example" id="file_selector" onchange="file_selected()">
           <option value="-1" selected disabled>選擇檔案</option>
         </select>
         <div class="form-check" style="margin-top:15px">
@@ -65,7 +65,7 @@
       <div class="col-4">
         <form>
           <div class="mb-3">
-            <select class="form-select" aria-label="Default select example" id="select_1">
+            <select class="form-select" aria-label="Default select example" id="select_1" onchange="select1_changed()">
               <option value="Per">Per</option>
               <option value="Org">Org</option>
               <option value="Loc">Loc</option>
@@ -73,12 +73,13 @@
               <option value="Veh">Veh</option>
               <option value="Wea">Wea</option>
             </select>
-            <select class="form-select" aria-label="Default select example" id="select_2">
+            <select class="form-select" aria-label="Default select example" id="select_2" onchange="select2_changed()">
             </select>
             <select class="form-select" aria-label="Default select example" id="select_3">
             </select>
           </div>
-          <div><button type="button" class="btn btn-primary" id="create_arg" onclick="click_CreateArg()">Create
+          <div>
+            <button type="button" class="btn btn-primary" id="create_arg" onclick="click_CreateArg()">Create
               Arg</button>
             <button type="button" class="btn btn-primary" id="done" onclick="click_Done()">Done</button>
           </div>
