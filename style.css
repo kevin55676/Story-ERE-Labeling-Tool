@@ -25,3 +25,7 @@ span {
     width: fit-content;
     margin-left: 5px;
 }
+
+.btn-close {
+    margin-left: 10px;
+}

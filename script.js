@@ -28,9 +28,16 @@ function click_Done() {
     reset_args_display();
 }
 
+function del_tag(btn) {
+    let num = btn.dataset.value;
+    taggings.splice(num, 1);
+
+    refresh_tag_display();
+}
+
 function click_CreateArg() {
     selectedTexts = window.getSelection();
-    console.log(document.getSelection());
+    // console.log(document.getSelection());
     let text = window.getSelection().toString();
     let anchor_node = window.getSelection().anchorNode.parentNode;
     let focus_node = window.getSelection().focusNode.parentNode;
@@ -52,6 +59,11 @@ function click_CreateArg() {
     refresh_args_display();
 }
 
+function over_tag() {
+    //TODO: 高亮選取的tag
+    alert('hi');
+}
+
 function create_entity_obj(arg_type, text, start, end) {
     let arg = {
         'Arg_type': arg_type,
@@ -63,7 +75,8 @@ function create_entity_obj(arg_type, text, start, end) {
     return arg;
 }
 
-function create_relation_obj() { }
+function create_relation_obj() {
+}
 
 function create_event_obj(arg_type, text, start, end) {
     let arg = {
@@ -109,9 +122,13 @@ function refresh_tag_display() {
     reset_tag_display();
 
     for (let i = 0; i < taggings.length; i++) {
-        let tag_wrapper = get_tagWrapper();
+        let wrapper = document.createElement('div');
+        wrapper.setAttribute('class', 'row');
+        let del_btn = get_delBtn(i);
+        let tag_wrapper = get_tagWrapper(taggings[i][0]);
         for (let j = 0; j < taggings[i][1].length; j++) {
             let arg_wrapper = document.createElement('div');
+            arg_wrapper.setAttribute('onclick', 'over_tag()');
             arg_wrapper.style.width = 'fit-content';
             let arg = document.createElement('span');
             arg.innerHTML = taggings[i][1][j]['Arg_type'];
@@ -122,16 +139,32 @@ function refresh_tag_display() {
             arg_wrapper.appendChild(text);
             tag_wrapper.appendChild(arg_wrapper);
         }
-        tag_display.appendChild(tag_wrapper);
+        wrapper.appendChild(del_btn);
+        wrapper.appendChild(tag_wrapper);
+        tag_display.appendChild(wrapper);
     }
 }
 
-function get_tagWrapper() {
+
+function get_tagWrapper(tab) {
     let tag_wrapper = document.createElement('div');
     tag_wrapper.style.border = '2px solid black';
     tag_wrapper.style.width = 'fit-content';
+    tag_wrapper.style.backgroundColor = 'rgba(' + rgb_dict[tab]["R"] + ',' + rgb_dict[tab]["G"] + ',' +
+        rgb_dict[tab]["B"] + ',' + unselected_opacity + ')';
 
     return tag_wrapper;
+}
+
+function get_delBtn(i) {
+    let del_btn = document.createElement('button');
+    del_btn.setAttribute('type', 'button');
+    del_btn.setAttribute('class', 'btn-close');
+    del_btn.setAttribute('aria-label', 'Close');
+    del_btn.setAttribute('onclick', 'del_tag(this)');
+    del_btn.setAttribute('data-value', i);
+
+    return del_btn;
 }
 
 function file_selected() {
@@ -214,7 +247,6 @@ function change_tab(btn) {
     current_tab = btn.innerHTML;
 }
 
-btn_commit.addEventListener('click', click_commit);
 file_selector.addEventListener('change', file_selected);
 select1.addEventListener('change', select1_changed);
 select2.addEventListener('change', select2_changed);
@@ -327,3 +359,24 @@ var menu2_menu3 = {
     "Meet": ["Entity", "Time", "Duration", "Place"],
     "Phone-Write": ["Entity", "Time", "Duration", "Place"]
 };
+
+var rgb_dict = {
+    "Entity": {
+        "R": 153,
+        "G": 102,
+        "B": 255
+    },
+    "Relation": {
+        "R": 255,
+        "G": 80,
+        "B": 80
+    },
+    "Event": {
+        "R": 0,
+        "G": 204,
+        "B": 102
+    }
+}
+
+var selected_opacity = 0.8;
+var unselected_opacity = 0.3;
