@@ -181,19 +181,19 @@ function refresh_tag_display() {
 function refresh_story() {
     let content = document.getElementById('card_content');
     let children = content.children;
-    for (let c = 0; c < children.length; c++) {
-        for (i = 0; i < taggings.length; i++) {
-            for (j = 0; j < taggings[i][1].length; j++) {
-                if (parseInt(children[c].dataset.value) >= parseInt(taggings[i][1][j]['Start']) &&
-                    parseInt(children[c].dataset.value) <= parseInt(taggings[i][1][j]['End'])) {
-                    // TODO: finish this part
-                    children[c].style.backgroundColor()
-                }
+    // for (let c = 0; c < children.length; c++) {
+    //     for (i = 0; i < taggings.length; i++) {
+    //         for (j = 0; j < taggings[i][1].length; j++) {
+    //             if (parseInt(children[c].dataset.value) >= parseInt(taggings[i][1][j]['Start']) &&
+    //                 parseInt(children[c].dataset.value) <= parseInt(taggings[i][1][j]['End'])) {
+    //                 // TODO: finish this part
+    //                 children[c].style.backgroundColor()
+    //             }
 
-            }
-        }
-    }
-    console.log(children);
+    //         }
+    //     }
+    // }
+    // console.log(children);
 }
 
 
