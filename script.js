@@ -15,10 +15,12 @@ var args = [];
 var taggings = [];
 var temp_tag = [];
 
+// event listerer when click commit button
 function click_commit() {
     alert('Commit to Server!');
 }
 
+// event listener when click done button
 function click_Done() {
     if (args.length != 0) {
         taggings.push([current_tab, args]);
@@ -29,6 +31,7 @@ function click_Done() {
     reset_args_display();
 }
 
+// event listener when click CreateArg button
 function click_CreateArg() {
     selectedTexts = window.getSelection();
     let text = window.getSelection().toString();
@@ -52,9 +55,10 @@ function click_CreateArg() {
     refresh_args_display();
 }
 
+// event listener when click tab (ERE)
 function click_tag(wrapper) {
+    // TODO: change the tab and selections according to the arg
     let num = wrapper.dataset.value;
-    // alert(num);
     args = taggings[num][1];
     taggings.splice(num, 1);
 
@@ -62,6 +66,7 @@ function click_tag(wrapper) {
     refresh_tag_display();
 }
 
+// event listener when click tag delete button
 function del_tag(btn) {
     let num = btn.dataset.value;
     taggings.splice(num, 1);
@@ -69,6 +74,7 @@ function del_tag(btn) {
     refresh_tag_display();
 }
 
+// event listener when click arg delete button
 function del_arg(btn) {
     let num = btn.dataset.value;
     args.splice(num, 1);
@@ -76,16 +82,49 @@ function del_arg(btn) {
     refresh_args_display();
 }
 
+// event listener when mouse moves into the tag area
 function over_tag(wrapper) {
     let style = getComputedStyle(wrapper)
     wrapper.style.backgroundColor = style.backgroundColor.replace(unselected_opacity, selected_opacity);
+
+    let content = document.getElementById('card_content');
+    let children = content.children;
+    let num = wrapper.dataset.value;
+
+    if (taggings[num][0] != current_tab) {
+        return;
+    }
+
+    for (let i = 0; i < taggings[num][1].length; i++) {
+        for (let j = 0; j < taggings[num][1].length; j++) {
+            for (let k = parseInt(taggings[num][1][j]['Start']); k < parseInt(taggings[num][1][j]['End']); k++) {
+                let child_style = getComputedStyle(children[k]);
+                children[k].style.backgroundColor = child_style.backgroundColor.replace(unselected_opacity, selected_opacity);
+            }
+        }
+    }
 }
 
+// event listener when mouse moves out the tag area
 function leave_tag(wrapper) {
     let style = getComputedStyle(wrapper)
     wrapper.style.backgroundColor = style.backgroundColor.replace(selected_opacity, unselected_opacity);
+
+    let content = document.getElementById('card_content');
+    let children = content.children;
+    let num = wrapper.dataset.value;
+
+    for (let i = 0; i < taggings[num][1].length; i++) {
+        for (let j = 0; j < taggings[num][1].length; j++) {
+            for (let k = parseInt(taggings[num][1][j]['Start']); k < parseInt(taggings[num][1][j]['End']); k++) {
+                let child_style = getComputedStyle(children[k]);
+                children[k].style.backgroundColor = child_style.backgroundColor.replace(selected_opacity, unselected_opacity);
+            }
+        }
+    }
 }
 
+// generate a entity tag
 function create_entity_obj(arg_type, text, start, end) {
     let arg = {
         'Arg_type': arg_type,
@@ -97,9 +136,12 @@ function create_entity_obj(arg_type, text, start, end) {
     return arg;
 }
 
+// generate a relation tag
 function create_relation_obj() {
+    // TODO: 新增 relation 的內容
 }
 
+// generate a event tag
 function create_event_obj(arg_type, text, start, end) {
     let arg = {
         'Arg_type': arg_type,
@@ -111,18 +153,21 @@ function create_event_obj(arg_type, text, start, end) {
     return arg;
 }
 
+// reset the args display area
 function reset_args_display() {
     while (args_display.firstChild) {
         args_display.removeChild(args_display.firstChild);
     }
 }
 
+// reset the tags display area
 function reset_tag_display() {
     while (tag_display.firstChild) {
         tag_display.removeChild(tag_display.firstChild);
     }
 }
 
+// reset the selection bars
 function reset_tagging_selections() {
     while (select1.firstChild) {
         select1.removeChild(select1.firstChild);
@@ -131,6 +176,17 @@ function reset_tagging_selections() {
     select3.style.display = 'none';
 }
 
+// set the story background to white
+function reset_story_color() {
+    let content = document.getElementById('card_content');
+    let children = content.children;
+
+    for (let i = 0; i < children.length; i++) {
+        children[i].style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
+    }
+}
+
+// refresh the args display area
 function refresh_args_display() {
     // reset the args list first
     reset_args_display();
@@ -150,6 +206,7 @@ function refresh_args_display() {
     }
 }
 
+// refresh the tags display area
 function refresh_tag_display() {
     reset_tag_display();
 
@@ -178,24 +235,26 @@ function refresh_tag_display() {
     refresh_story();
 }
 
+// refresh the story display area
 function refresh_story() {
+    reset_story_color();
+
     let content = document.getElementById('card_content');
     let children = content.children;
-    // for (let c = 0; c < children.length; c++) {
-    //     for (i = 0; i < taggings.length; i++) {
-    //         for (j = 0; j < taggings[i][1].length; j++) {
-    //             if (parseInt(children[c].dataset.value) >= parseInt(taggings[i][1][j]['Start']) &&
-    //                 parseInt(children[c].dataset.value) <= parseInt(taggings[i][1][j]['End'])) {
-    //                 // TODO: finish this part
-    //                 children[c].style.backgroundColor()
-    //             }
+    for (let i = 0; i < taggings.length; i++) {
+        // we only show the tag which belongs to current tab
+        if (taggings[i][0] != current_tab) {
+            continue;
+        }
 
-    //         }
-    //     }
-    // }
-    // console.log(children);
+        for (let j = 0; j < taggings[i][1].length; j++) {
+            for (let k = parseInt(taggings[i][1][j]['Start']); k < parseInt(taggings[i][1][j]['End']); k++) {
+                children[k].style.backgroundColor = 'rgba(' + rgb_dict[current_tab]["R"] + ',' + rgb_dict[current_tab]["G"] + ',' +
+                    rgb_dict[current_tab]["B"] + ',' + unselected_opacity + ')';
+            }
+        }
+    }
 }
-
 
 function get_tagWrapper(i, tab) {
     let tag_wrapper = document.createElement('div');
@@ -210,7 +269,6 @@ function get_tagWrapper(i, tab) {
 
     return tag_wrapper;
 }
-
 
 function get_delBtn(i, type) {
     let del_btn = document.createElement('button');
@@ -289,6 +347,7 @@ function select2_changed() {
     }
 }
 
+// event listener when user change the tab
 function change_tab(btn) {
     reset_tagging_selections();
     args = [];
@@ -297,10 +356,12 @@ function change_tab(btn) {
     generate_options_1(btn.dataset.value);
 
     current_tab = btn.innerHTML;
+    refresh_story();
 }
 
 var stories_json;
 
+// get the story list and content from server
 function get_story_data() {
     let url = 'http://140.115.54.59:8000/StoryList';
     fetch(url)
@@ -313,6 +374,7 @@ function get_story_data() {
         });
 }
 
+// generate options (file list) to file selector
 function generate_file_list() {
     for (let i = 0; i < stories_json.length; i++) {
         let option = document.createElement('option');
@@ -322,6 +384,7 @@ function generate_file_list() {
     }
 }
 
+// display story content at story display area
 function display_story(f_title, f_cont) {
     let title = document.getElementById('card_title');
     let content = document.getElementById('card_content');
@@ -339,6 +402,7 @@ function display_story(f_title, f_cont) {
     }
 }
 
+// split the story content
 function tokenization(string) {
     let exp = new RegExp('([\u4e00-\u9fa5:：!！「」，。?？])');
     let ret_list = [];
