@@ -18,13 +18,34 @@ var temp_tag = [];
 // event listerer when click commit button
 function click_commit() {
     alert('Commit to Server!');
+    // TODO: 完成上傳的實作
 }
 
 // event listener when click done button
 function click_Done() {
-    if (args.length != 0) {
-        taggings.push([current_tab, args]);
+    if (args.length == 0) {
+        return;
     }
+    let dict;
+    if (current_tab == "Entity") {
+        dict = {
+            'tab': current_tab,
+            'entity_type': select1.value,
+            'args': args
+        };
+    } else if (current_tab == "Relation") {
+        dict = {
+            'tab': current_tab,
+            'args': args
+        };
+    } else if (current_tab == "Event") {
+        dict = {
+            'tab': current_tab,
+            'event_type': select2.value,
+            'args': args
+        };
+    }
+    taggings.push(dict);
     args = [];
 
     refresh_tag_display();
@@ -55,15 +76,25 @@ function click_CreateArg() {
     refresh_args_display();
 }
 
-// event listener when click tab (ERE)
+// event listener when click tag
 function click_tag(wrapper) {
-    // TODO: change the tab and selections according to the arg
     let num = wrapper.dataset.value;
-    args = taggings[num][1];
+    args = taggings[num]['args'];
+    if (current_tab == "Event") {
+        let sel2_val = taggings[num]['event_type'];
+        for (let key in menu1_menu2) {
+            if (menu1_menu2[key].includes(sel2_val)) {
+                select1.value = key;
+                select1_changed();
+                select2.value = sel2_val;
+                break;
+            }
+        }
+    }
     taggings.splice(num, 1);
 
-    refresh_args_display();
     refresh_tag_display();
+    refresh_args_display();
 }
 
 // event listener when click tag delete button
@@ -91,13 +122,13 @@ function over_tag(wrapper) {
     let children = content.children;
     let num = wrapper.dataset.value;
 
-    if (taggings[num][0] != current_tab) {
+    if (taggings[num]['tab'] != current_tab) {
         return;
     }
 
-    for (let i = 0; i < taggings[num][1].length; i++) {
-        for (let j = 0; j < taggings[num][1].length; j++) {
-            for (let k = parseInt(taggings[num][1][j]['Start']); k < parseInt(taggings[num][1][j]['End']); k++) {
+    for (let i = 0; i < taggings[num]['args'].length; i++) {
+        for (let j = 0; j < taggings[num]['args'].length; j++) {
+            for (let k = parseInt(taggings[num]['args'][j]['Start']); k < parseInt(taggings[num]['args'][j]['End']); k++) {
                 let child_style = getComputedStyle(children[k]);
                 children[k].style.backgroundColor = child_style.backgroundColor.replace(unselected_opacity, selected_opacity);
             }
@@ -114,9 +145,9 @@ function leave_tag(wrapper) {
     let children = content.children;
     let num = wrapper.dataset.value;
 
-    for (let i = 0; i < taggings[num][1].length; i++) {
-        for (let j = 0; j < taggings[num][1].length; j++) {
-            for (let k = parseInt(taggings[num][1][j]['Start']); k < parseInt(taggings[num][1][j]['End']); k++) {
+    for (let i = 0; i < taggings[num]['args'].length; i++) {
+        for (let j = 0; j < taggings[num]['args'].length; j++) {
+            for (let k = parseInt(taggings[num]['args'][j]['Start']); k < parseInt(taggings[num]['args'][j]['End']); k++) {
                 let child_style = getComputedStyle(children[k]);
                 children[k].style.backgroundColor = child_style.backgroundColor.replace(selected_opacity, unselected_opacity);
             }
@@ -211,24 +242,19 @@ function refresh_tag_display() {
     reset_tag_display();
 
     for (let i = 0; i < taggings.length; i++) {
-        let wrapper = document.createElement('div');
-        wrapper.setAttribute('class', 'row');
-        let del_btn = get_delBtn(i, 'tag');
-        let tag_wrapper = get_tagWrapper(i, taggings[i][0]);
-        for (let j = 0; j < taggings[i][1].length; j++) {
-            let arg_wrapper = document.createElement('div');
-            arg_wrapper.style.width = 'fit-content';
-            let arg = document.createElement('span');
-            arg.innerHTML = taggings[i][1][j]['Arg_type'];
-            let text = document.createElement('span');
-            text.innerHTML = taggings[i][1][j]['Text'];
-
-            arg_wrapper.appendChild(arg);
-            arg_wrapper.appendChild(text);
-            tag_wrapper.appendChild(arg_wrapper);
+        if (taggings[i]['tab'] != current_tab) {
+            continue;
         }
-        wrapper.appendChild(del_btn);
-        wrapper.appendChild(tag_wrapper);
+
+        let wrapper;
+        if (current_tab == "Entity") {
+            wrapper = entity_displayer(i);
+        } else if (current_tab == "Relation") {
+
+        } else if (current_tab == "Event") {
+            wrapper = event_displayer(i);
+        }
+
         tag_display.appendChild(wrapper);
     }
 
@@ -243,29 +269,112 @@ function refresh_story() {
     let children = content.children;
     for (let i = 0; i < taggings.length; i++) {
         // we only show the tag which belongs to current tab
-        if (taggings[i][0] != current_tab) {
+        if (taggings[i]['tab'] != current_tab) {
             continue;
         }
 
-        for (let j = 0; j < taggings[i][1].length; j++) {
-            for (let k = parseInt(taggings[i][1][j]['Start']); k < parseInt(taggings[i][1][j]['End']); k++) {
-                children[k].style.backgroundColor = 'rgba(' + rgb_dict[current_tab]["R"] + ',' + rgb_dict[current_tab]["G"] + ',' +
-                    rgb_dict[current_tab]["B"] + ',' + unselected_opacity + ')';
+        for (let j = 0; j < taggings[i]['args'].length; j++) {
+            // k 用來指定文章中字的範圍
+            for (let k = parseInt(taggings[i]['args'][j]['Start']); k < parseInt(taggings[i]['args'][j]['End']); k++) {
+                let filter = taggings[i]['tab'];
+
+                if (filter == "Entity") {
+                    let color = taggings[i]['entity_type'];
+                    children[k].style.backgroundColor = 'rgba(' + entity_rgb[color]["R"] + ',' + entity_rgb[color]["G"] + ',' +
+                        entity_rgb[color]["B"] + ',' + unselected_opacity + ')';
+                } else if (filter == "Relation") {
+
+                } else if (filter == "Event") {
+                    let color = taggings[i]['event_type'];
+                    children[k].style.backgroundColor = 'rgba(' + event_rgb[color]["R"] + ',' + event_rgb[color]["G"] + ',' +
+                        event_rgb[color]["B"] + ',' + unselected_opacity + ')';
+                }
             }
         }
     }
 }
 
-function get_tagWrapper(i, tab) {
+function entity_displayer(i) {
+    let wrapper = document.createElement('div');
+    wrapper.setAttribute('class', 'row');
+    let del_btn = get_delBtn(i, 'tag');
+    let color = taggings[i]['entity_type'];
+    let r = entity_rgb[color]["R"];
+    let g = entity_rgb[color]["G"];
+    let b = entity_rgb[color]["B"];
+    let tag_wrapper = get_tagWrapper(i, r, g, b);
+
+    for (let j = 0; j < taggings[i]['args'].length; j++) {
+        let arg_wrapper = document.createElement('div');
+        arg_wrapper.style.width = 'fit-content';
+        let arg = document.createElement('span');
+        arg.innerHTML = taggings[i]['args'][j]['Arg_type'];
+        let text = document.createElement('span');
+        text.innerHTML = taggings[i]['args'][j]['Text'];
+
+        arg_wrapper.appendChild(arg);
+        arg_wrapper.appendChild(text);
+        tag_wrapper.appendChild(arg_wrapper);
+    }
+    wrapper.appendChild(del_btn);
+    wrapper.appendChild(tag_wrapper);
+
+    return wrapper;
+}
+
+function relation_displayer(i) {
+    // TODO: finish this part
+}
+
+function event_displayer(i) {
+    let wrapper = document.createElement('div');
+    wrapper.setAttribute('class', 'row');
+    let del_btn = get_delBtn(i, 'tag');
+    let color = taggings[i]['event_type'];
+    let r = event_rgb[color]["R"];
+    let g = event_rgb[color]["G"];
+    let b = event_rgb[color]["B"];
+    let tag_wrapper = get_tagWrapper(i, r, g, b);
+
+    let event_wrapper = document.createElement('div');
+    event_wrapper.style.width = 'fit-content';
+    let EVENT = document.createElement('span');
+    EVENT.innerHTML = "Event";
+    let event_name = document.createElement('span');
+    event_name.innerHTML = taggings[i]['event_type'];
+    event_wrapper.appendChild(EVENT);
+    event_wrapper.appendChild(event_name);
+    tag_wrapper.appendChild(event_wrapper);
+
+    for (let j = 0; j < taggings[i]['args'].length; j++) {
+        let arg_wrapper = document.createElement('div');
+        arg_wrapper.style.width = 'fit-content';
+        let arg = document.createElement('span');
+        arg.innerHTML = taggings[i]['args'][j]['Arg_type'];
+        let text = document.createElement('span');
+        text.innerHTML = taggings[i]['args'][j]['Text'];
+
+        arg_wrapper.appendChild(arg);
+        arg_wrapper.appendChild(text);
+        tag_wrapper.appendChild(arg_wrapper);
+    }
+    wrapper.appendChild(del_btn);
+    wrapper.appendChild(tag_wrapper);
+
+    return wrapper;
+}
+
+function get_tagWrapper(i, r, g, b) {
     let tag_wrapper = document.createElement('div');
     tag_wrapper.setAttribute('onmouseenter', 'over_tag(this)');
     tag_wrapper.setAttribute('onmouseleave', 'leave_tag(this)');
     tag_wrapper.setAttribute('onclick', 'click_tag(this)');
     tag_wrapper.setAttribute('data-value', i);
+    tag_wrapper.style.backgroundColor = 'rgba(' + r + ',' +
+        g + ',' + b + ',' + unselected_opacity + ')';
     tag_wrapper.style.border = '2px solid black';
     tag_wrapper.style.width = 'fit-content';
-    tag_wrapper.style.backgroundColor = 'rgba(' + rgb_dict[tab]["R"] + ',' + rgb_dict[tab]["G"] + ',' +
-        rgb_dict[tab]["B"] + ',' + unselected_opacity + ')';
+
 
     return tag_wrapper;
 }
@@ -357,6 +466,7 @@ function change_tab(btn) {
 
     current_tab = btn.innerHTML;
     refresh_story();
+    refresh_tag_display();
 }
 
 var stories_json;
@@ -436,39 +546,39 @@ var menu1_menu2 = {
 };
 
 var menu2_menu3 = {
-    "Be-Born": ["Person", "Time", "Place"],
-    "Marry": ["Person", "Time", "Place"],
-    "Divorce": ["Person", "Time", "Place"],
-    "Injure": ["Agent", "Victim", "Instrument", "Time", "Place"],
-    "Die": ["Agent", "Victim", "Instrument", "Time", "Place"],
-    "Transport": ["Agent", "Transporter", "Artifact", "Vehicle", "Origin", "Destinat", "Price", "Time"],
-    "Transfer-Ownership": ["Buyer", "Seller", "Beneficiary", "Artifact", "Price", "Time", "Place"],
-    "Transfer-Money": ["Giver", "Recipient", "Beneficiary", "Money", "Time", "Place"],
-    "Start-Org": ["Agent", "Org", "Time", "Place"],
-    "Merge-Org": ["Org", "Time", "Place"],
-    "Declare-Bankruptcy": ["Org", "Time", "Place"],
-    "End-Org": ["Org", "Time", "Place"],
-    "Attack": ["Attacker", "Target", "Instrument", "Time", "Place"],
-    "Demonstrate": ["Entity", "Time", "Place"],
-    "Start-Position": ["Person", "Entity", "Position", "Time", "Place"],
-    "End-Position": ["Person", "Entity", "Position", "Time", "Place"],
-    "Nominate": ["Person", "Agent", "Position", "Time", "Place"],
-    "Elect": ["Person", "Entity", "Position", "Time", "Place"],
-    "Arrest-Jail": ["Person", "Agent", "Crime", "Time", "Duration", "Place"],
-    "Release-Parole": ["Person", "Entity", "Crime", "Time", "Place"],
-    "Trial-Hearing": ["Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
-    "Charge-Indict": ["Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
-    "Sue": ["Plaintiff", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
-    "Convict": ["Defendant", "Adjudicator", "Crime", "Time", "Place"],
-    "Sentence": ["Sentence", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
-    "Fine": ["Entity", "Adjudicator", "Money", "Crime", "Time", "Place"],
-    "Execute": ["Person", "Agent", "Crime", "Time", "Place"],
-    "Extradite": ["Agent", "Person", "Destination", "Origin", "Time", "Crime"],
-    "Acquit": ["Defendant", "Adjudicator", "Crime", "Time", "Place"],
-    "Pardon": ["Defendant", "Adjudicator", "Crime", "Time", "Place"],
-    "Appeal": ["Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
-    "Meet": ["Entity", "Time", "Duration", "Place"],
-    "Phone-Write": ["Entity", "Time", "Duration", "Place"]
+    "Be-Born": ["Trigger_Word", "Person", "Time", "Place"],
+    "Marry": ["Trigger_Word", "Person", "Time", "Place"],
+    "Divorce": ["Trigger_Word", "Person", "Time", "Place"],
+    "Injure": ["Trigger_Word", "Agent", "Victim", "Instrument", "Time", "Place"],
+    "Die": ["Trigger_Word", "Agent", "Victim", "Instrument", "Time", "Place"],
+    "Transport": ["Trigger_Word", "Agent", "Transporter", "Artifact", "Vehicle", "Origin", "Destinat", "Price", "Time"],
+    "Transfer-Ownership": ["Trigger_Word", "Buyer", "Seller", "Beneficiary", "Artifact", "Price", "Time", "Place"],
+    "Transfer-Money": ["Trigger_Word", "Giver", "Recipient", "Beneficiary", "Money", "Time", "Place"],
+    "Start-Org": ["Trigger_Word", "Agent", "Org", "Time", "Place"],
+    "Merge-Org": ["Trigger_Word", "Org", "Time", "Place"],
+    "Declare-Bankruptcy": ["Trigger_Word", "Org", "Time", "Place"],
+    "End-Org": ["Trigger_Word", "Org", "Time", "Place"],
+    "Attack": ["Trigger_Word", "Attacker", "Target", "Instrument", "Time", "Place"],
+    "Demonstrate": ["Trigger_Word", "Entity", "Time", "Place"],
+    "Start-Position": ["Trigger_Word", "Person", "Entity", "Position", "Time", "Place"],
+    "End-Position": ["Trigger_Word", "Person", "Entity", "Position", "Time", "Place"],
+    "Nominate": ["Trigger_Word", "Person", "Agent", "Position", "Time", "Place"],
+    "Elect": ["Trigger_Word", "Person", "Entity", "Position", "Time", "Place"],
+    "Arrest-Jail": ["Trigger_Word", "Person", "Agent", "Crime", "Time", "Duration", "Place"],
+    "Release-Parole": ["Trigger_Word", "Person", "Entity", "Crime", "Time", "Place"],
+    "Trial-Hearing": ["Trigger_Word", "Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
+    "Charge-Indict": ["Trigger_Word", "Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
+    "Sue": ["Trigger_Word", "Plaintiff", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
+    "Convict": ["Trigger_Word", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
+    "Sentence": ["Trigger_Word", "Sentence", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
+    "Fine": ["Trigger_Word", "Entity", "Adjudicator", "Money", "Crime", "Time", "Place"],
+    "Execute": ["Trigger_Word", "Person", "Agent", "Crime", "Time", "Place"],
+    "Extradite": ["Trigger_Word", "Agent", "Person", "Destination", "Origin", "Time", "Crime"],
+    "Acquit": ["Trigger_Word", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
+    "Pardon": ["Trigger_Word", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
+    "Appeal": ["Trigger_Word", "Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
+    "Meet": ["Trigger_Word", "Entity", "Time", "Duration", "Place"],
+    "Phone-Write": ["Trigger_Word", "Entity", "Time", "Duration", "Place"]
 };
 
 var rgb_dict = {
@@ -487,6 +597,59 @@ var rgb_dict = {
         "G": 204,
         "B": 102
     }
+}
+
+var entity_rgb = {
+    "Per": { "R": 0, "G": 102, "B": 153 },
+    "Org": { "R": 51, "G": 51, "B": 255 },
+    "Loc": { "R": 153, "G": 51, "B": 255 },
+    "Fac": { "R": 204, "G": 0, "B": 204 },
+    "Veh": { "R": 204, "G": 0, "B": 102 },
+    "Wea": { "R": 204, "G": 102, "B": 0 }
+}
+
+var relation_rgb = {}
+
+var event_rgb = {
+    "Be-Born": { "R": 0, "G": 102, "B": 153 },
+    "Marry": { "R": 0, "G": 204, "B": 153 },
+    "Divorce": { "R": 0, "G": 153, "B": 51 },
+    "Injure": { "R": 102, "G": 153, "B": 0 },
+    "Die": { "R": 204, "G": 204, "B": 0 },
+    "Transport": { "R": 255, "G": 153, "B": 0 },
+    "Transfer-Ownership": { "R": 255, "G": 51, "B": 0 },
+    "Transfer-Money": { "R": 204, "G": 0, "B": 102 },
+    "Start-Org": { "R": 204, "G": 51, "B": 153 },
+    "Merge-Org": { "R": 204, "G": 0, "B": 204 },
+    "Declare-Bankruptcy": { "R": 153, "G": 51, "B": 255 },
+    "End-Org": { "R": 51, "G": 51, "B": 204 },
+    "Attack": { "R": 0, "G": 102, "B": 204 },
+    "Demonstrate": { "R": 51, "G": 204, "B": 204 },
+    "Start-Position": { "R": 0, "G": 255, "B": 153 },
+    "End-Position": { "R": 51, "G": 204, "B": 51 },
+    "Nominate": { "R": 153, "G": 255, "B": 51 },
+    "Elect": { "R": 255, "G": 255, "B": 0 },
+    "Arrest-Jail": { "R": 255, "G": 153, "B": 51 },
+    "Release-Parole": { "R": 255, "G": 80, "B": 80 },
+    "Trial-Hearing": { "R": 255, "G": 51, "B": 153 },
+    "Charge-Indict": { "R": 255, "G": 0, "B": 255 },
+    "Sue": { "R": 153, "G": 102, "B": 255 },
+    "Convict": { "R": 51, "G": 102, "B": 255 },
+    "Sentence": { "R": 0, "G": 153, "B": 255 },
+    "Fine": { "R": 0, "G": 255, "B": 255 },
+    "Execute": { "R": 102, "G": 255, "B": 153 },
+    "Extradite": { "R": 204, "G": 255, "B": 153 },
+    "Acquit": { "R": 255, "G": 204, "B": 153 },
+    "Pardon": { "R": 255, "G": 153, "B": 204 },
+    "Appeal": { "R": 204, "G": 153, "B": 255 },
+    "Meet": { "R": 153, "G": 204, "B": 255 },
+    "Phone-Write": { "R": 102, "G": 204, "B": 255 }
+}
+
+var new_rgb_dict = {
+    "Entity": entity_rgb,
+    "Relation": relation_rgb,
+    "Event": event_rgb
 }
 
 var selected_opacity = 0.8;
