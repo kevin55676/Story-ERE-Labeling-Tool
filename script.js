@@ -17,8 +17,122 @@ var temp_tag = [];
 
 // event listerer when click commit button
 function click_commit() {
-    alert('Commit to Server!');
-    // TODO: 完成上傳的實作
+    filted_tag = [];
+
+    for (let i = 0; i < taggings.length; i++) {
+        if (taggings[i]['tab'] != current_tab) {
+            continue;
+        }
+        filted_tag.push(taggings[i]);
+    }
+
+    if (current_tab == "Entity") {
+        let mentions = [];
+        let url = "http://140.115.54.59:8000/LabelResult/Entity";
+
+        console.log(filted_tag)
+
+        for (let i = 0; i < filted_tag.length; i++) {
+            // i indicate i-th tag
+            let temp = {
+                "Entity_type": filted_tag[i]['entity_type'],
+                "Text": filted_tag[i]['args'][0]["Text"],
+                "Start": filted_tag[i]['args'][0]["Start"],
+                "End": filted_tag[i]['args'][0]["End"]
+            }
+            mentions.push(temp);
+        }
+        let data = {
+            "Doc_name": stories_json[file_selector.value].file_name,
+            "Entity_mentions": mentions
+        }
+
+        console.log(data)
+
+        post_result_to_server(url, data);
+    } else if (current_tab == "Event") {
+        let mentions = [];
+
+        console.log(filted_tag);
+
+        let url = "http://140.115.54.59:8000/LabelResult/Event";
+
+        for (let i = 0; i < filted_tag.length; i++) {
+            // i indicate i-th tag
+            let event_type = filted_tag[i]['event_type']
+            let event_args = []
+            for (let j = 0; j < filted_tag[i]['args'].length; j++) {
+                // j indicate j-th argument in i-th event
+                let arg = {
+                    "Arg_type": filted_tag[i]['args'][j]["Arg_type"],
+                    "Text": filted_tag[i]['args'][j]["Text"],
+                    "Start": filted_tag[i]['args'][j]["Start"],
+                    "End": filted_tag[i]['args'][j]["End"]
+                }
+                console.log(arg);
+                event_args.push(arg);
+            }
+            let single_event = {
+                "Event_type": event_type,
+                "Arguments": event_args
+            }
+            mentions.push(single_event);
+        }
+        let data = {
+            "Doc_name": stories_json[file_selector.value].file_name,
+            "Event_mentions": mentions
+        }
+        console.log(data)
+        post_result_to_server(url, data);
+    } else if (current_tab == "Relation") {
+        let mentions = [];
+
+        console.log(filted_tag);
+
+        let url = "http://140.115.54.59:8000/LabelResult/Relation";
+
+        for (let i = 0; i < filted_tag.length; i++) {
+            // i indicate i-th tag
+            let relation_type = filted_tag[i]['relation_type']
+            let relation_subtype = filted_tag[i]['relation_subtype']
+            let relation_args = []
+            for (let j = 0; j < filted_tag[i]['args'].length; j++) {
+                // j indicate j-th argument in i-th relation
+                let arg = {
+                    "Arg_type": filted_tag[i]['args'][j]["Arg_type"],
+                    "Text": filted_tag[i]['args'][j]["Text"],
+                    "Start": filted_tag[i]['args'][j]["Start"],
+                    "End": filted_tag[i]['args'][j]["End"]
+                }
+                // console.log(arg);
+                relation_args.push(arg);
+            }
+            let single_event = {
+                "Relation_type": relation_type,
+                "Relation_subtype": relation_subtype,
+                "Arguments": relation_args
+            }
+            mentions.push(single_event);
+        }
+        let data = {
+            "Doc_name": stories_json[file_selector.value].file_name,
+            "Relation_mentions": mentions
+        }
+        console.log(data)
+        post_result_to_server(url, data);
+    }
+}
+
+function post_result_to_server(url, data) {
+    fetch(url, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: new Headers({
+            'Content-Type': 'application/json'
+        })
+    }).then(res => res.json())
+        .catch(error => console.error('Error:', error))
+        .then(response => console.log('Success:', response));
 }
 
 // event listener when click done button
@@ -36,6 +150,8 @@ function click_Done() {
     } else if (current_tab == "Relation") {
         dict = {
             'tab': current_tab,
+            'relation_type': select1.value,
+            'relation_subtype': select2.value,
             'args': args
         };
     } else if (current_tab == "Event") {
@@ -70,7 +186,9 @@ function click_CreateArg() {
         let arg = create_entity_obj(arg_type, text, start, end);
         args.push(arg);
     } else if (current_tab == 'Relation') {
-        create_relation_obj();
+        let arg_type = select3.value;
+        let arg = create_relation_obj(arg_type, text, start, end);
+        args.push(arg);
     }
 
     refresh_args_display();
@@ -168,8 +286,15 @@ function create_entity_obj(arg_type, text, start, end) {
 }
 
 // generate a relation tag
-function create_relation_obj() {
-    // TODO: 新增 relation 的內容
+function create_relation_obj(arg_type, text, start, end) {
+    let arg = {
+        'Arg_type': arg_type,
+        'Text': text,
+        'Start': start,
+        'End': end
+    }
+
+    return arg;
 }
 
 // generate a event tag
@@ -250,7 +375,7 @@ function refresh_tag_display() {
         if (current_tab == "Entity") {
             wrapper = entity_displayer(i);
         } else if (current_tab == "Relation") {
-
+            wrapper = relation_displayer(i);
         } else if (current_tab == "Event") {
             wrapper = event_displayer(i);
         }
@@ -283,6 +408,9 @@ function refresh_story() {
                     children[k].style.backgroundColor = 'rgba(' + entity_rgb[color]["R"] + ',' + entity_rgb[color]["G"] + ',' +
                         entity_rgb[color]["B"] + ',' + unselected_opacity + ')';
                 } else if (filter == "Relation") {
+                    let color = taggings[i]['relation_subtype'];
+                    children[k].style.backgroundColor = 'rgba(' + relation_rgb[color]["R"] + ',' + relation_rgb[color]["G"] + ',' +
+                        relation_rgb[color]["B"] + ',' + unselected_opacity + ')';
 
                 } else if (filter == "Event") {
                     let color = taggings[i]['event_type'];
@@ -323,7 +451,51 @@ function entity_displayer(i) {
 }
 
 function relation_displayer(i) {
-    // TODO: finish this part
+    let wrapper = document.createElement('div');
+    wrapper.setAttribute('class', 'row');
+    let del_btn = get_delBtn(i, 'tag');
+    let color = taggings[i]['relation_subtype'];
+    let r = relation_rgb[color]["R"];
+    let g = relation_rgb[color]["G"];
+    let b = relation_rgb[color]["B"];
+    let tag_wrapper = get_tagWrapper(i, r, g, b);
+
+    let type_wrapper = document.createElement('div');
+    type_wrapper.style.width = 'fit-content';
+    let _type = document.createElement('span');
+    _type.innerHTML = "Type";
+    let type_text = document.createElement('span');
+    type_text.innerHTML = taggings[i]['relation_type'];
+    type_wrapper.appendChild(_type);
+    type_wrapper.appendChild(type_text);
+    tag_wrapper.appendChild(type_wrapper);
+
+    let subtype_wrapper = document.createElement('div');
+    type_wrapper.style.width = 'fit-content';
+    let _subtype = document.createElement('span');
+    _subtype.innerHTML = "Subtype";
+    let subtype_text = document.createElement('span');
+    subtype_text.innerHTML = taggings[i]['relation_subtype'];
+    subtype_wrapper.appendChild(_subtype);
+    subtype_wrapper.appendChild(subtype_text);
+    tag_wrapper.appendChild(subtype_wrapper);
+
+    for (let j = 0; j < taggings[i]['args'].length; j++) {
+        let arg_wrapper = document.createElement('div');
+        arg_wrapper.style.width = 'fit-content';
+        let arg = document.createElement('span');
+        arg.innerHTML = taggings[i]['args'][j]['Arg_type'];
+        let text = document.createElement('span');
+        text.innerHTML = taggings[i]['args'][j]['Text'];
+
+        arg_wrapper.appendChild(arg);
+        arg_wrapper.appendChild(text);
+        tag_wrapper.appendChild(arg_wrapper);
+    }
+    wrapper.appendChild(del_btn);
+    wrapper.appendChild(tag_wrapper);
+
+    return wrapper;
 }
 
 function event_displayer(i) {
@@ -440,7 +612,19 @@ function select1_changed() {
 function select2_changed() {
     let opt_value = select2.value;
     let select3_opts = menu2_menu3[opt_value];
-    if (typeof select3_opts == "undefined") {
+    if (current_tab == "Relation") {
+        select3.style.display = 'block';
+        let relation_select3 = menu2_menu3["Relation_Args"];
+        while (select3.firstChild) {
+            select3.removeChild(select3.firstChild);
+        }
+        for (let i = 0; i < relation_select3.length; i++) {
+            let option = document.createElement('option');
+            option.text = relation_select3[i];
+            option.value = relation_select3[i];
+            select3.appendChild(option);
+        }
+    } else if (typeof select3_opts == "undefined") {
         select3.style.display = 'none';
     } else {
         select3.style.display = 'block';
@@ -530,7 +714,7 @@ get_story_data();
 
 var ERE_menu1 = {
     "Entity": ["Per", "Org", "Loc", "Fac", "Veh", "Wea"],
-    "Relation": [""],
+    "Relation": ["ART (artifact)", "GEN-AFF (Gen-affiliation)", "METONYMY", "ORG-AFF (Org-affiliation)", "PART-WHOLE", "PER-SOC (person-social)", "PHYS (physical)"],
     "Event": ["Life", "Movement", "Transaction", "Business", "Conflict", "Contact", "Personnel", "Justice"]
 };
 
@@ -542,7 +726,14 @@ var menu1_menu2 = {
     "Conflict": ["Attack", "Demonstrate"],
     "Personnel": ["Start-Position", "End-Position", "Nominate", "Elect"],
     "Justice": ["Arrest-Jail", "Release-Parole", "Trial-Hearing", "Charge-Indict", "Sue", "Convict", "Sentence", "Fine", "Execute", "Extradite", "Acquit", "Pardon", "Appeal"],
-    "Contact": ["Meet", "Phone-Write"]
+    "Contact": ["Meet", "Phone-Write"],
+    "ART (artifact)": ["User-Owner-Inventor-Manufacturer"],
+    "GEN-AFF (Gen-affiliation)": ["Citizen-Resident-Religion-Ethnicity", "Org-Location"],
+    "METONYMY": ['none'],
+    "ORG-AFF (Org-affiliation)": ["Employment", "Founder", "Ownership", "Student-Alum", "Sports-Affiliation", "Investor-Shareholder", "Membership"],
+    "PART-WHOLE": ["Artifact", "Geographical", "Subsidiary"],
+    "PER-SOC (person-social)": ["Business", "Family", "Lasting-Personal"],
+    "PHYS (physical)": ["Located", "Near"]
 };
 
 var menu2_menu3 = {
@@ -578,7 +769,8 @@ var menu2_menu3 = {
     "Pardon": ["Trigger_Word", "Defendant", "Adjudicator", "Crime", "Time", "Place"],
     "Appeal": ["Trigger_Word", "Defendant", "Prosecutor", "Adjudicator", "Crime", "Time", "Place"],
     "Meet": ["Trigger_Word", "Entity", "Time", "Duration", "Place"],
-    "Phone-Write": ["Trigger_Word", "Entity", "Time", "Duration", "Place"]
+    "Phone-Write": ["Trigger_Word", "Entity", "Time", "Duration", "Place"],
+    "Relation_Args": ["Arg1", "Arg2"]
 };
 
 var rgb_dict = {
@@ -608,7 +800,27 @@ var entity_rgb = {
     "Wea": { "R": 204, "G": 102, "B": 0 }
 }
 
-var relation_rgb = {}
+var relation_rgb = {
+    "User-Owner-Inventor-Manufacturer": { "R": 0, "G": 102, "B": 153 },
+    "Citizen-Resident-Religion-Ethnicity": { "R": 0, "G": 204, "B": 153 },
+    "Org-Location": { "R": 0, "G": 153, "B": 51 },
+    "none": { "R": 102, "G": 153, "B": 0 },
+    "Employment": { "R": 204, "G": 204, "B": 0 },
+    "Founder": { "R": 255, "G": 153, "B": 0 },
+    "Ownership": { "R": 255, "G": 51, "B": 0 },
+    "Student-Alum": { "R": 204, "G": 0, "B": 102 },
+    "Sports-Affiliation": { "R": 204, "G": 51, "B": 153 },
+    "Investor-Shareholder": { "R": 204, "G": 0, "B": 204 },
+    "Membership": { "R": 153, "G": 51, "B": 255 },
+    "Artifact": { "R": 51, "G": 51, "B": 204 },
+    "Geographical": { "R": 0, "G": 102, "B": 204 },
+    "Subsidiary": { "R": 51, "G": 204, "B": 204 },
+    "Business": { "R": 0, "G": 255, "B": 153 },
+    "Family": { "R": 51, "G": 204, "B": 51 },
+    "Lasting-Personal": { "R": 153, "G": 255, "B": 51 },
+    "Located": { "R": 255, "G": 255, "B": 0 },
+    "Near": { "R": 255, "G": 153, "B": 51 }
+}
 
 var event_rgb = {
     "Be-Born": { "R": 0, "G": 102, "B": 153 },
