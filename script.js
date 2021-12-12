@@ -132,7 +132,9 @@ function post_result_to_server(url, data) {
         })
     }).then(res => res.json())
         .catch(error => console.error('Error:', error))
-        .then(response => console.log('Success:', response));
+        .then(response => console.log('Success:', response))
+        .then(response => alert("Commit Successfully!"));
+
 }
 
 // event listener when click done button
@@ -568,6 +570,11 @@ function get_delBtn(i, type) {
 
 function file_selected() {
     let val = file_selector.value;
+    args = [];
+    taggings = [];
+    temp_tag = [];
+    refresh_tag_display();
+    refresh_args_display();
     display_story(stories_json[val].file_name, stories_json[val].file_content);
 }
 
