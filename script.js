@@ -576,6 +576,7 @@ function file_selected() {
     refresh_tag_display();
     refresh_args_display();
     display_story(stories_json[val].file_name, stories_json[val].file_content);
+    get_tagged_tags(stories_json[val].file_name);
 }
 
 function remove_all_options() {
@@ -673,6 +674,20 @@ function get_story_data() {
             stories_json = myJson;
             generate_file_list();
         });
+}
+
+function get_tagged_tags(file_name) {
+    let url = 'http://140.115.54.59:8000/StoryTag/'
+    url = url + file_name;
+
+    fetch(url)
+        .then(function (response) {
+            return response.json();
+        })
+    // .then(function (myJson) {
+    //     stories_json = myJson;
+    //     generate_file_list();
+    // });
 }
 
 // generate options (file list) to file selector
