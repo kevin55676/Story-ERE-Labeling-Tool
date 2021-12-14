@@ -650,13 +650,14 @@ function select2_changed() {
 
 // event listener when user change the tab
 function change_tab(btn) {
+    current_tab = btn.innerHTML;
     reset_tagging_selections();
     args = [];
     reset_args_display();
 
     generate_options_1(btn.dataset.value);
+    select1_changed();
 
-    current_tab = btn.innerHTML;
     refresh_story();
     refresh_tag_display();
 }
