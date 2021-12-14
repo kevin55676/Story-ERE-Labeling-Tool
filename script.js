@@ -812,7 +812,7 @@ login_or_register();
 get_story_data();
 
 var ERE_menu1 = {
-    "Entity": ["Per", "Org", "Loc", "Fac", "Veh", "Wea"],
+    "Entity": ["Per", "Org", "Loc", "Fac", "Veh", "Wea", "Gpe"],
     "Relation": ["ART (artifact)", "GEN-AFF (Gen-affiliation)", "METONYMY", "ORG-AFF (Org-affiliation)", "PART-WHOLE", "PER-SOC (person-social)", "PHYS (physical)"],
     "Event": ["Life", "Movement", "Transaction", "Business", "Conflict", "Contact", "Personnel", "Justice"]
 };
