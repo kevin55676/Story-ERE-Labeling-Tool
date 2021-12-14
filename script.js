@@ -30,7 +30,6 @@ function click_commit() {
         let mentions = [];
         let url = "http://140.115.54.59:8000/LabelResult/Entity";
 
-        console.log(filted_tag)
 
         for (let i = 0; i < filted_tag.length; i++) {
             // i indicate i-th tag
@@ -47,13 +46,9 @@ function click_commit() {
             "Entity_mentions": mentions
         }
 
-        console.log(data)
-
         post_result_to_server(url, data);
     } else if (current_tab == "Event") {
         let mentions = [];
-
-        console.log(filted_tag);
 
         let url = "http://140.115.54.59:8000/LabelResult/Event";
 
@@ -69,7 +64,6 @@ function click_commit() {
                     "Start": filted_tag[i]['args'][j]["Start"],
                     "End": filted_tag[i]['args'][j]["End"]
                 }
-                console.log(arg);
                 event_args.push(arg);
             }
             let single_event = {
@@ -82,12 +76,9 @@ function click_commit() {
             "Doc_name": stories_json[file_selector.value].file_name,
             "Event_mentions": mentions
         }
-        console.log(data)
         post_result_to_server(url, data);
     } else if (current_tab == "Relation") {
         let mentions = [];
-
-        console.log(filted_tag);
 
         let url = "http://140.115.54.59:8000/LabelResult/Relation";
 
@@ -104,7 +95,6 @@ function click_commit() {
                     "Start": filted_tag[i]['args'][j]["Start"],
                     "End": filted_tag[i]['args'][j]["End"]
                 }
-                // console.log(arg);
                 relation_args.push(arg);
             }
             let single_event = {
@@ -118,7 +108,6 @@ function click_commit() {
             "Doc_name": stories_json[file_selector.value].file_name,
             "Relation_mentions": mentions
         }
-        console.log(data)
         post_result_to_server(url, data);
     }
 }
@@ -677,6 +666,75 @@ function get_story_data() {
         });
 }
 
+function load_previous_tag(tags) {
+    for (let i = 0; i < tags.length; i++) {
+        let filter = tags[i]['tab'];
+        if (filter == "Entity") {
+            let arg_type = tags[i]["label"]["Entity_type"];
+            let text = tags[i]["label"]["Text"];
+            let start = tags[i]["label"]["Start"];
+            let end = tags[i]["label"]["End"];
+            let arg = create_entity_obj(arg_type, text, start, end);
+
+            args.push(arg);
+
+            let dict = {
+                'tab': filter,
+                'entity_type': arg_type,
+                'args': args
+            };
+
+            taggings.push(dict);
+            args = [];
+        } else if (filter == "Relation") {
+            let relation_type = tags[i]["label"]["Relation_type"];
+            let relation_subtype = tags[i]["label"]["Relation_subtype"];
+
+            for (let j = 0; j < tags[i]["label"]["Arguments"].length; j++) {
+                let arg_type = tags[i]["label"]["Arguments"][j]["Arg_type"];
+                let text = tags[i]["label"]["Arguments"][j]["Text"];
+                let start = tags[i]["label"]["Arguments"][j]["Start"];
+                let end = tags[i]["label"]["Arguments"][j]["End"];
+
+                let arg = create_relation_obj(arg_type, text, start, end);
+                args.push(arg);
+            }
+
+            dict = {
+                'tab': filter,
+                'relation_type': relation_type,
+                'relation_subtype': relation_subtype,
+                'args': args
+            };
+
+            taggings.push(dict);
+            args = [];
+        } else if (filter == "Event") {
+            let event_type = tags[i]["label"]["Event_type"];
+
+            for (let j = 0; j < tags[i]["label"]["Arguments"].length; j++) {
+                let arg_type = tags[i]["label"]["Arguments"][j]["Arg_type"];
+                let text = tags[i]["label"]["Arguments"][j]["Text"];
+                let start = tags[i]["label"]["Arguments"][j]["Start"];
+                let end = tags[i]["label"]["Arguments"][j]["End"];
+
+                let arg = create_event_obj(arg_type, text, start, end);
+                args.push(arg);
+            }
+
+            dict = {
+                'tab': filter,
+                'event_type': event_type,
+                'args': args
+            };
+
+            taggings.push(dict);
+            args = [];
+        }
+    }
+    refresh_tag_display();
+}
+
 function get_tagged_tags(file_name) {
     let url = 'http://140.115.54.59:8000/StoryTag/'
     url = url + file_name;
@@ -685,10 +743,9 @@ function get_tagged_tags(file_name) {
         .then(function (response) {
             return response.json();
         })
-    // .then(function (myJson) {
-    //     stories_json = myJson;
-    //     generate_file_list();
-    // });
+        .then(function (myJson) {
+            load_previous_tag(myJson);
+        });
 }
 
 // generate options (file list) to file selector
