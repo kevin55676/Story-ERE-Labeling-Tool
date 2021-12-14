@@ -15,6 +15,8 @@ var args = [];
 var taggings = [];
 var temp_tag = [];
 
+var user_id = 'visitor';
+
 // event listerer when click commit button
 function click_commit() {
     filted_tag = [];
@@ -28,7 +30,7 @@ function click_commit() {
 
     if (current_tab == "Entity") {
         let mentions = [];
-        let url = "http://140.115.54.59:8000/LabelResult/Entity";
+        let url = "http://140.115.54.59:8000/LabelResult/Entity/" + user_id;
 
 
         for (let i = 0; i < filted_tag.length; i++) {
@@ -50,7 +52,7 @@ function click_commit() {
     } else if (current_tab == "Event") {
         let mentions = [];
 
-        let url = "http://140.115.54.59:8000/LabelResult/Event";
+        let url = "http://140.115.54.59:8000/LabelResult/Event/" + user_id;
 
         for (let i = 0; i < filted_tag.length; i++) {
             // i indicate i-th tag
@@ -80,7 +82,7 @@ function click_commit() {
     } else if (current_tab == "Relation") {
         let mentions = [];
 
-        let url = "http://140.115.54.59:8000/LabelResult/Relation";
+        let url = "http://140.115.54.59:8000/LabelResult/Relation/" + user_id;
 
         for (let i = 0; i < filted_tag.length; i++) {
             // i indicate i-th tag
@@ -736,7 +738,7 @@ function load_previous_tag(tags) {
 }
 
 function get_tagged_tags(file_name) {
-    let url = 'http://140.115.54.59:8000/StoryTag/'
+    let url = 'http://140.115.54.59:8000/StoryTag/' + user_id + '/'
     url = url + file_name;
 
     fetch(url)
@@ -790,6 +792,23 @@ function tokenization(string) {
     return ret_list;
 }
 
+function login_or_register() {
+    user_id = prompt("請輸入學號或一個屬於你的代號");
+    console.log(user_id);
+
+    let url = 'http://140.115.54.59:8000/LoginRegister/' + user_id;
+    fetch(url, {
+        method: 'POST',
+        body: user_id,
+        headers: new Headers({
+            'Content-Type': 'text/html'
+        })
+    }).then(res => res.json())
+        .catch(error => console.error('Error:', error))
+        .then(response => console.log('Success:', response))
+}
+
+login_or_register();
 get_story_data();
 
 var ERE_menu1 = {
