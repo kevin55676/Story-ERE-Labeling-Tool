@@ -175,7 +175,7 @@ function click_CreateArg() {
     } else {
         let temp = start;
         start = end;
-        end = end = (parseInt(temp, 10) + 1).toString();
+        end = (parseInt(temp, 10) + 1).toString();
     }
 
     if (current_tab == 'Event') {
