@@ -168,7 +168,15 @@ function click_CreateArg() {
     let anchor_node = window.getSelection().anchorNode.parentNode;
     let focus_node = window.getSelection().focusNode.parentNode;
     let start = anchor_node.dataset.value;
-    let end = (parseInt(focus_node.dataset.value, 10) + 1).toString();
+    let end = focus_node.dataset.value;
+
+    if (parseInt(start, 10) < parseInt(end, 10)) {
+        end = (parseInt(end, 10) + 1).toString();
+    } else {
+        let temp = start;
+        start = end;
+        end = end = (parseInt(temp, 10) + 1).toString();
+    }
 
     if (current_tab == 'Event') {
         let arg_type = select3.value;
