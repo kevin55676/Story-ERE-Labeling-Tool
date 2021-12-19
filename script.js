@@ -57,6 +57,7 @@ function click_commit() {
         for (let i = 0; i < filted_tag.length; i++) {
             // i indicate i-th tag
             let event_type = filted_tag[i]['event_type']
+            let event_subtype = filted_tag[i]['event_subtype']
             let event_args = []
             for (let j = 0; j < filted_tag[i]['args'].length; j++) {
                 // j indicate j-th argument in i-th event
@@ -70,6 +71,7 @@ function click_commit() {
             }
             let single_event = {
                 "Event_type": event_type,
+                "Event_subtype": event_subtype,
                 "Arguments": event_args
             }
             mentions.push(single_event);
@@ -150,7 +152,8 @@ function click_Done() {
     } else if (current_tab == "Event") {
         dict = {
             'tab': current_tab,
-            'event_type': select2.value,
+            'event_type': select1.value,
+            'event_subtype': select2.value,
             'args': args
         };
     }
@@ -414,7 +417,7 @@ function refresh_story() {
                         relation_rgb[color]["B"] + ',' + unselected_opacity + ')';
 
                 } else if (filter == "Event") {
-                    let color = taggings[i]['event_type'];
+                    let color = taggings[i]['event_subtype'];
                     children[k].style.backgroundColor = 'rgba(' + event_rgb[color]["R"] + ',' + event_rgb[color]["G"] + ',' +
                         event_rgb[color]["B"] + ',' + unselected_opacity + ')';
                 }
@@ -503,7 +506,7 @@ function event_displayer(i) {
     let wrapper = document.createElement('div');
     wrapper.setAttribute('class', 'row');
     let del_btn = get_delBtn(i, 'tag');
-    let color = taggings[i]['event_type'];
+    let color = taggings[i]['event_subtype'];
     let r = event_rgb[color]["R"];
     let g = event_rgb[color]["G"];
     let b = event_rgb[color]["B"];
@@ -514,7 +517,7 @@ function event_displayer(i) {
     let EVENT = document.createElement('span');
     EVENT.innerHTML = "Event";
     let event_name = document.createElement('span');
-    event_name.innerHTML = taggings[i]['event_type'];
+    event_name.innerHTML = taggings[i]['event_subtype'];
     event_wrapper.appendChild(EVENT);
     event_wrapper.appendChild(event_name);
     tag_wrapper.appendChild(event_wrapper);
@@ -721,6 +724,7 @@ function load_previous_tag(tags) {
             args = [];
         } else if (filter == "Event") {
             let event_type = tags[i]["label"]["Event_type"];
+            let event_subtype = tags[i]["label"]["Event_subtype"];
 
             for (let j = 0; j < tags[i]["label"]["Arguments"].length; j++) {
                 let arg_type = tags[i]["label"]["Arguments"][j]["Arg_type"];
@@ -735,6 +739,7 @@ function load_previous_tag(tags) {
             dict = {
                 'tab': filter,
                 'event_type': event_type,
+                'event_subtype': event_subtype,
                 'args': args
             };
 
