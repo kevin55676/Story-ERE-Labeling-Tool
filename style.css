@@ -4,6 +4,15 @@
 
 #file_selector {
     margin-top:15px;
+    width: 50%;
+    display: inline;
+}
+
+#exampleDataList {
+    margin-top:15px;
+    width: 40%;
+    display: inline;
+    margin-left: 10px;
 }
 
 #card_content{

@@ -572,6 +572,8 @@ function get_delBtn(i, type) {
 
 function file_selected() {
     let val = file_selector.value;
+    let search_bar = document.getElementById("exampleDataList");
+    search_bar.value = ""
     args = [];
     taggings = [];
     temp_tag = [];
@@ -579,6 +581,19 @@ function file_selected() {
     refresh_args_display();
     display_story(stories_json[val].file_name, stories_json[val].file_content);
     get_tagged_tags(stories_json[val].file_name);
+}
+
+function file_searched(search_bar) {
+    // console.log(search_bar.value)
+    for (let i = 0; i < stories_json.length; i++) {
+        if (stories_json[i].file_name == search_bar.value) {
+            file_selector.value = i;
+            refresh_tag_display();
+            refresh_args_display();
+            display_story(stories_json[i].file_name, stories_json[i].file_content);
+            get_tagged_tags(stories_json[i].file_name);
+        }
+    }
 }
 
 function remove_all_options() {
@@ -776,11 +791,16 @@ function get_tagged_tags(file_name) {
 
 // generate options (file list) to file selector
 function generate_file_list() {
+    var datalistOptions = document.getElementById('datalistOptions');
     for (let i = 0; i < stories_json.length; i++) {
         let option = document.createElement('option');
         option.text = stories_json[i].file_name;
         option.value = i;
         file_selector.appendChild(option);
+
+        let datalistopt = document.createElement('option');
+        datalistopt.value = stories_json[i].file_name;
+        datalistOptions.appendChild(datalistopt);
     }
 }
 
