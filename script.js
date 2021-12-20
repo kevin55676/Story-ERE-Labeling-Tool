@@ -666,6 +666,17 @@ function change_tab(btn) {
 
 var stories_json;
 
+function GetSortOrder(prop) {
+    return function (a, b) {
+        if (a[prop] > b[prop]) {
+            return 1;
+        } else if (a[prop] < b[prop]) {
+            return -1;
+        }
+        return 0;
+    }
+}
+
 // get the story list and content from server
 function get_story_data() {
     let url = 'http://140.115.54.59:8000/StoryList';
@@ -674,7 +685,7 @@ function get_story_data() {
             return response.json();
         })
         .then(function (myJson) {
-            stories_json = myJson;
+            stories_json = myJson.sort(GetSortOrder("file_name"));
             generate_file_list();
         });
 }
