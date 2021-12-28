@@ -588,6 +588,9 @@ function file_searched(search_bar) {
     for (let i = 0; i < stories_json.length; i++) {
         if (stories_json[i].file_name == search_bar.value) {
             file_selector.value = i;
+            args = [];
+            taggings = [];
+            temp_tag = [];
             refresh_tag_display();
             refresh_args_display();
             display_story(stories_json[i].file_name, stories_json[i].file_content);
