@@ -17,6 +17,8 @@ var temp_tag = [];
 
 var user_id = 'visitor';
 
+var flag = -1;
+
 // event listerer when click commit button
 function click_commit() {
     filted_tag = [];
@@ -571,20 +573,21 @@ function get_delBtn(i, type) {
 }
 
 function file_selected() {
-    let val = file_selector.value;
+    flag = -1;
+
     let search_bar = document.getElementById("exampleDataList");
     search_bar.value = ""
     args = [];
     taggings = [];
     temp_tag = [];
     refresh_tag_display();
-    refresh_args_display();
-    display_story(stories_json[val].file_name, stories_json[val].file_content);
-    get_tagged_tags(stories_json[val].file_name);
+    refresh_args_display();  
 }
+
 
 function file_searched(search_bar) {
     // console.log(search_bar.value)
+    flag = -1;
     for (let i = 0; i < stories_json.length; i++) {
         if (stories_json[i].file_name == search_bar.value) {
             file_selector.value = i;
@@ -593,10 +596,14 @@ function file_searched(search_bar) {
             temp_tag = [];
             refresh_tag_display();
             refresh_args_display();
-            display_story(stories_json[i].file_name, stories_json[i].file_content);
-            get_tagged_tags(stories_json[i].file_name);
         }
     }
+}
+
+function click_Check(){
+    let val = file_selector.value;
+    display_story(stories_json[val].file_name, stories_json[val].file_content, flag);
+    get_tagged_tags(stories_json[val].file_name);
 }
 
 function remove_all_options() {
@@ -808,7 +815,7 @@ function generate_file_list() {
 }
 
 // display story content at story display area
-function display_story(f_title, f_cont) {
+function display_story(f_title, f_cont, flag) {
     let title = document.getElementById('card_title');
     let content = document.getElementById('card_content');
 
@@ -816,7 +823,13 @@ function display_story(f_title, f_cont) {
     while (content.firstChild) {
         content.removeChild(content.firstChild);
     }
-    var tok_list = tokenization(f_cont);
+    if (flag == 0){
+        var tok_list = tokenization_ch(f_cont);
+    }
+    else if(flag == 1){
+        var tok_list = tokenization_en(f_cont);
+    }
+
     for (let i = 0; i < tok_list.length; i++) {
         let spam = document.createElement('spam');
         spam.innerHTML = tok_list[i];
@@ -825,14 +838,35 @@ function display_story(f_title, f_cont) {
     }
 }
 
-// split the story content
-function tokenization(string) {
+function tokenization_ch(string) {
     let exp = new RegExp('([\u4e00-\u9fa5:：!！「」，。?？])');
     let ret_list = [];
     let splited = string.split(exp);
+
     for (let tok = 0; tok < splited.length; tok++) {
         if (splited[tok].trim().length > 0) {
             ret_list.push(splited[tok].trim());
+        }
+    }
+
+    return ret_list;
+}
+
+function tokenization_en(string) {
+    let exp = new RegExp('([\t\n\v\f\r \u00a0\u2000\u2001\u2002\u2003\u2004\u2005\u2006\u2007\u2008\u2009\u200a\u200b\u2028\u2029\u3000,!?."])');
+    let ret_list = [];
+    let splited = string.split(exp);
+
+    for (let tok = 0; tok < splited.length; tok++) {
+        if (splited[tok].trim().length > 0) {
+            ret_list.push(splited[tok].trim());
+            
+            if(splited[tok + 1] == ',' || splited[tok + 1] == '!' || splited[tok + 1] == '.' || splited[tok + 1] == '?' || splited[tok + 1] == '"'){
+                continue;
+            }
+            else{
+                ret_list.push(" ");
+            }
         }
     }
 
@@ -857,6 +891,26 @@ function login_or_register() {
 
 login_or_register();
 get_story_data();
+
+function click_Ch(){
+    flag = 0;
+    var x = document.getElementById('story_ch');
+    var y = document.getElementById('story_en');
+
+    x.style.backgroundColor = "#2626FF";
+    y.style.backgroundColor = "#C4C4C4";
+
+}
+
+function click_En(){
+    flag = 1;
+
+    var x = document.getElementById('story_ch');
+    var y = document.getElementById('story_en');
+
+    x.style.backgroundColor = "#C4C4C4";
+    y.style.backgroundColor = "#2626FF";
+}
 
 var ERE_menu1 = {
     "Entity": ["Per", "Org", "Loc", "Fac", "Veh", "Wea", "Gpe"],
